@@ -3,6 +3,9 @@ import {Todo} from '../models/todo'
 
 const router=Router()
 
+type RequestBody={ text: string }
+type RequestParams={ id: string }
+
 let todos: Todo[]=[]
 
 router.get('/',(req,res,next)=>{
@@ -10,9 +13,10 @@ router.get('/',(req,res,next)=>{
 })
 
 router.post('/todo',(req,res,next)=>{
-     const newTodo: Todo = {
+    const body=req.body as RequestBody
+    const newTodo: Todo = {
         id: new Date().toISOString(),
-        text: req.body.text
+        text: body.text
      }
 
      todos.push(newTodo)
@@ -21,12 +25,14 @@ router.post('/todo',(req,res,next)=>{
 })
 
 router.put('/edit/:id',(req,res,next)=>{
-    const id=req.params.id
+    const params=req.body as RequestParams
+    const id=params.id
     const index=todos.findIndex((todo)=> todo.id===id)
+    const body=req.body as RequestBody
     if(index>=0){
         todos[index]={
             id: todos[index].id,
-            text: req.body.text
+            text: body.text
         }
         return res.status(201).json({message:'todo updated',todo: todos})
     }
@@ -35,16 +41,9 @@ router.put('/edit/:id',(req,res,next)=>{
 })
 
 router.delete('/deletetodo/:id',(req,res,next)=>{
-     const id=req.params.id
-    //  const updatedtodo=[]
+    const params=req.params as RequestParams 
+    const id=params.id
      if(id){
-        // for(let i=0;i<todos.length;i++){
-        //     if(id==todos[i].id){
-        //         continue
-        //     }
-        //     updatedtodo.push(todos[i])
-        // }
-        // todos=[...updatedtodo]
         todos=todos.filter((todo)=>
             todo.id!==id
         )
